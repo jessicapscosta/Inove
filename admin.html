@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — INOVE Topografia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ── VARIÁVEIS (idênticas ao index.html) ── */
+:root{
+  --bd:#03111f;--bm:#0a1e3d;--bp:#1d4ed8;--bl:#3b82f6;--bb:#60a5fa;--w:#fff;--ac:#f59e0b;
+  --sidebar:260px;
+  --success:#22c55e;--danger:#ef4444;--warn:#f59e0b;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:"DM Sans",sans-serif;background:var(--bd);color:var(--w);overflow-x:hidden;min-height:100vh}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;background:var(--bd);
+  background-image:radial-gradient(ellipse at 20% 50%,rgba(29,78,216,.15) 0%,transparent 60%),
+                   radial-gradient(ellipse at 80% 20%,rgba(96,165,250,.08) 0%,transparent 50%);
+}
+.login-box{
+  background:rgba(10,30,61,.8);border:1px solid rgba(59,130,246,.25);
+  border-radius:16px;padding:52px 44px;width:100%;max-width:420px;
+  backdrop-filter:blur(20px);box-shadow:0 40px 100px rgba(0,0,0,.5);
+  animation:fadeIn .5s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo-title{font-family:"Bebas Neue",sans-serif;font-size:32px;color:var(--bb);letter-spacing:3px}
+.login-logo-sub{font-family:"Syne",sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:3px;text-transform:uppercase;margin-top:4px}
+.login-box h2{font-family:"Syne",sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:28px;text-align:center}
+.lf{margin-bottom:18px}
+.lf label{display:block;font-family:"Syne",sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px}
+.lf input{width:100%;padding:13px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(59,130,246,.2);border-radius:8px;color:#fff;font-size:14px;font-family:"DM Sans",sans-serif;outline:none;transition:border-color .2s}
+.lf input:focus{border-color:var(--bl)}
+.lf input::placeholder{color:rgba(255,255,255,.2)}
+.login-btn{
+  width:100%;background:var(--bp);color:#fff;padding:14px;border:none;border-radius:8px;
+  font-family:"Syne",sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  cursor:pointer;transition:all .25s;margin-top:8px;box-shadow:0 8px 28px rgba(29,78,216,.35)
+}
+.login-btn:hover{background:var(--bl);transform:translateY(-2px)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.login-err{color:#ef4444;font-size:12px;text-align:center;margin-top:10px;font-family:"Syne",sans-serif;font-weight:600;min-height:16px}
+
+/* ── ADMIN LAYOUT ── */
+#admin-screen{display:none;min-height:100vh}
+.admin-wrap{display:flex;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar);flex-shrink:0;background:#020c18;
+  border-right:1px solid rgba(59,130,246,.12);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;
+  transition:transform .3s ease;
+}
+.sb-logo{padding:28px 24px 24px;border-bottom:1px solid rgba(59,130,246,.1)}
+.sb-logo-name{font-family:"Bebas Neue",sans-serif;font-size:22px;color:var(--bb);letter-spacing:2px}
+.sb-logo-sub{font-family:"Syne",sans-serif;font-size:9px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.sb-nav{flex:1;padding:16px 0}
+.sb-section-label{font-family:"Syne",sans-serif;font-size:9px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:2.5px;text-transform:uppercase;padding:16px 24px 6px}
+.sb-link{
+  display:flex;align-items:center;gap:12px;padding:11px 24px;
+  font-family:"Syne",sans-serif;font-size:12px;font-weight:600;
+  color:rgba(255,255,255,.5);text-decoration:none;cursor:pointer;
+  transition:all .2s;border-left:3px solid transparent;letter-spacing:.5px;
+  background:none;border-right:none;border-top:none;border-bottom:none;width:100%;text-align:left;
+}
+.sb-link:hover{color:#fff;background:rgba(59,130,246,.08);border-left-color:rgba(59,130,246,.3)}
+.sb-link.active{color:var(--bb);background:rgba(29,78,216,.15);border-left-color:var(--bb)}
+.sb-link svg{width:16px;height:16px;flex-shrink:0;opacity:.7}
+.sb-link.active svg,.sb-link:hover svg{opacity:1}
+.sb-footer{padding:16px 24px;border-top:1px solid rgba(59,130,246,.1)}
+.sb-user{font-size:11px;color:rgba(255,255,255,.35);font-family:"Syne",sans-serif;margin-bottom:12px;word-break:break-all}
+.sb-actions{display:flex;flex-direction:column;gap:8px}
+.sb-btn{
+  display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:7px;
+  font-family:"Syne",sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;transition:all .2s;text-decoration:none;border:none;justify-content:center;
+}
+.sb-btn-site{background:rgba(29,78,216,.2);color:var(--bb);border:1px solid rgba(59,130,246,.3)}
+.sb-btn-site:hover{background:rgba(29,78,216,.4)}
+.sb-btn-logout{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.sb-btn-logout:hover{background:rgba(239,68,68,.3)}
+
+/* ── MAIN CONTENT ── */
+.admin-main{margin-left:var(--sidebar);flex:1;min-height:100vh;padding:0}
+.admin-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 36px;height:64px;background:rgba(2,12,24,.95);
+  border-bottom:1px solid rgba(59,130,246,.1);
+  backdrop-filter:blur(12px);position:sticky;top:0;z-index:50;
+}
+.topbar-title{font-family:"Bebas Neue",sans-serif;font-size:22px;color:#fff;letter-spacing:2px}
+.topbar-badge{
+  background:rgba(29,78,216,.2);border:1px solid rgba(59,130,246,.3);
+  border-radius:100px;padding:5px 14px;
+  font-family:"Syne",sans-serif;font-size:10px;font-weight:700;color:var(--bb);letter-spacing:1.5px;
+}
+.admin-content{padding:36px}
+
+/* ── SECTION PANELS ── */
+.adm-panel{display:none}
+.adm-panel.active{display:block}
+.panel-header{margin-bottom:32px}
+.panel-header h2{font-family:"Bebas Neue",sans-serif;font-size:34px;color:#fff;letter-spacing:2px;margin-bottom:6px}
+.panel-header p{font-size:13px;color:rgba(255,255,255,.4);font-family:"Syne",sans-serif;font-weight:600}
+
+/* ── CARDS / BOXES ── */
+.adm-card{
+  background:rgba(10,22,40,.7);border:1px solid rgba(59,130,246,.13);
+  border-radius:12px;padding:28px;margin-bottom:24px;
+}
+.adm-card-title{
+  font-family:"Syne",sans-serif;font-size:13px;font-weight:800;
+  color:rgba(255,255,255,.7);letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:22px;padding-bottom:14px;border-bottom:1px solid rgba(59,130,246,.1);
+  display:flex;align-items:center;gap:10px;
+}
+.adm-card-title svg{width:16px;height:16px;color:var(--bb)}
+
+/* ── FORM FIELDS ── */
+.af{margin-bottom:18px}
+.af label{
+  display:block;font-family:"Syne",sans-serif;font-size:10px;font-weight:700;
+  color:rgba(255,255,255,.45);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;
+}
+.af input,.af select,.af textarea{
+  width:100%;padding:11px 14px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(59,130,246,.18);border-radius:8px;color:#fff;
+  font-size:14px;font-family:"DM Sans",sans-serif;outline:none;transition:border-color .2s;
+}
+.af input:focus,.af select:focus,.af textarea:focus{border-color:var(--bl)}
+.af input::placeholder,.af textarea::placeholder{color:rgba(255,255,255,.2)}
+.af select option{background:#0a1e3d}
+.af textarea{resize:vertical;min-height:90px}
+.af-hint{font-size:11px;color:rgba(255,255,255,.25);margin-top:5px;font-family:"Syne",sans-serif}
+.af2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.af3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* ── UPLOAD FIELD ── */
+.upload-area{
+  border:2px dashed rgba(59,130,246,.25);border-radius:10px;padding:24px;
+  text-align:center;cursor:pointer;transition:all .25s;position:relative;background:rgba(255,255,255,.02);
+}
+.upload-area:hover{border-color:rgba(59,130,246,.5);background:rgba(29,78,216,.06)}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{margin-bottom:10px;color:rgba(59,130,246,.5)}
+.upload-txt{font-family:"Syne",sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase}
+.upload-sub{font-size:11px;color:rgba(255,255,255,.2);margin-top:4px}
+.upload-preview{width:100%;max-height:140px;object-fit:cover;border-radius:7px;margin-top:12px;display:none}
+.upload-status{font-size:11px;font-family:"Syne",sans-serif;font-weight:700;margin-top:8px;min-height:14px;color:var(--success)}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 22px;border-radius:8px;border:none;cursor:pointer;
+  font-family:"Syne",sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  transition:all .22s;text-decoration:none;
+}
+.btn-primary{background:var(--bp);color:#fff;box-shadow:0 6px 20px rgba(29,78,216,.3)}
+.btn-primary:hover{background:var(--bl);transform:translateY(-2px)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12)}
+.btn-secondary:hover{background:rgba(255,255,255,.1);color:#fff}
+.btn-danger{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.btn-danger:hover{background:rgba(239,68,68,.3)}
+.btn-success{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.btn-success:hover{background:rgba(34,197,94,.3)}
+.btn-sm{padding:7px 14px;font-size:11px}
+.btn-icon{padding:8px;border-radius:7px}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.toast{
+  padding:14px 20px;border-radius:10px;font-family:"Syne",sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.5px;box-shadow:0 8px 32px rgba(0,0,0,.4);animation:toastIn .3s ease;
+  display:flex;align-items:center;gap:10px;min-width:260px;max-width:360px;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.toast-success{background:#14532d;border:1px solid #22c55e;color:#86efac}
+.toast-error{background:#450a0a;border:1px solid #ef4444;color:#fca5a5}
+.toast-info{background:#1e3a5f;border:1px solid var(--bb);color:var(--bb)}
+.toast svg{width:16px;height:16px;flex-shrink:0}
+
+/* ── IMG HISTORY ── */
+.img-history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:14px}
+.ih-item{
+  position:relative;border-radius:8px;overflow:hidden;cursor:pointer;
+  aspect-ratio:1;border:2px solid transparent;transition:border-color .2s;
+}
+.ih-item:hover{border-color:var(--bb)}
+.ih-item img{width:100%;height:100%;object-fit:cover;display:block}
+.ih-item:hover::after{
+  content:"Usar";position:absolute;inset:0;background:rgba(29,78,216,.75);
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Syne",sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;
+}
+
+/* ── CRUD TABLE ── */
+.crud-table{width:100%;border-collapse:collapse;margin-top:16px}
+.crud-table th{
+  font-family:"Syne",sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);
+  letter-spacing:2px;text-transform:uppercase;padding:10px 14px;
+  border-bottom:1px solid rgba(59,130,246,.12);text-align:left;
+}
+.crud-table td{padding:13px 14px;border-bottom:1px solid rgba(59,130,246,.07);font-size:13px;color:rgba(255,255,255,.75);vertical-align:middle}
+.crud-table tr:hover td{background:rgba(29,78,216,.05)}
+.crud-table .thumb{width:52px;height:40px;object-fit:cover;border-radius:6px;display:block}
+.crud-table .actions{display:flex;gap:6px;align-items:center}
+.tag-badge{display:inline-block;padding:3px 10px;border-radius:100px;font-family:"Syne",sans-serif;font-size:10px;font-weight:700;letter-spacing:1px}
+.tag-upcoming{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3)}
+.tag-result{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.tag-novo{background:rgba(29,78,216,.2);color:var(--bb);border:1px solid rgba(59,130,246,.3)}
+.tag-contatado{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3)}
+.tag-cancelado{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.empty-state{text-align:center;padding:52px 20px;color:rgba(255,255,255,.25);font-family:"Syne",sans-serif;font-size:12px;font-weight:600;letter-spacing:1px}
+.empty-state svg{width:40px;height:40px;margin:0 auto 14px;display:block;opacity:.3}
+
+/* ── GALLERY GRID ── */
+.gallery-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:16px}
+.ga-item{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1;border:1px solid rgba(59,130,246,.1);transition:border-color .2s}
+.ga-item:hover{border-color:rgba(59,130,246,.35)}
+.ga-item img{width:100%;height:100%;object-fit:cover;display:block}
+.ga-item-overlay{
+  position:absolute;inset:0;background:rgba(3,17,31,.7);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  opacity:0;transition:opacity .2s;
+}
+.ga-item:hover .ga-item-overlay{opacity:1}
+.ga-item-title{font-family:"Syne",sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:.5px;text-align:center;padding:0 8px;line-height:1.3}
+
+/* ── STATS CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:rgba(10,22,40,.7);border:1px solid rgba(59,130,246,.13);border-radius:12px;padding:22px 20px}
+.stat-num{font-family:"Bebas Neue",sans-serif;font-size:38px;color:var(--bb);line-height:1;letter-spacing:2px}
+.stat-lbl{font-family:"Syne",sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.35);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+
+/* ── MOBILE TOGGLE ── */
+.sb-toggle{
+  display:none;position:fixed;top:16px;left:16px;z-index:200;
+  width:44px;height:44px;background:var(--bm);border:1px solid rgba(59,130,246,.3);
+  border-radius:9px;cursor:pointer;align-items:center;justify-content:center;
+}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:90}
+
+/* ── SPINNER ── */
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── CONFIRM MODAL ── */
+.confirm-modal{
+  display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.85);
+  align-items:center;justify-content:center;padding:20px;
+}
+.confirm-modal.open{display:flex}
+.confirm-box{
+  background:#0a1628;border:1px solid rgba(59,130,246,.25);border-radius:14px;
+  padding:36px;max-width:400px;width:100%;text-align:center;
+  animation:fadeIn .25s ease;
+}
+.confirm-box h3{font-family:"Bebas Neue",sans-serif;font-size:28px;color:#fff;margin-bottom:12px;letter-spacing:1px}
+.confirm-box p{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:28px;line-height:1.6}
+.confirm-actions{display:flex;gap:12px;justify-content:center}
+
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sb-toggle{display:flex}
+  .sb-overlay.open{display:block}
+  .admin-main{margin-left:0}
+  .admin-topbar{padding:0 60px 0 20px}
+  .admin-content{padding:20px}
+  .af2,.af3{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:500px){
+  .stats-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOAST CONTAINER ── -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ── CONFIRM MODAL ── -->
+<div class="confirm-modal" id="confirm-modal">
+  <div class="confirm-box">
+    <h3 id="confirm-title">Confirmar</h3>
+    <p id="confirm-msg">Tem certeza?</p>
+    <div class="confirm-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-ok-btn">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-title">INOVE</div>
+      <div class="login-logo-sub">Painel Administrativo</div>
+    </div>
+    <h2>Acesso Restrito</h2>
+    <div class="lf">
+      <label>E-mail</label>
+      <input type="email" id="login-email" placeholder="admin@inove.com.br" autocomplete="username">
+    </div>
+    <div class="lf">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ADMIN SCREEN
+══════════════════════════════════════ -->
+<div id="admin-screen">
+
+  <!-- Mobile toggle -->
+  <button class="sb-toggle" onclick="toggleSidebar()">
+    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <div class="sb-overlay" id="sb-overlay" onclick="toggleSidebar()"></div>
+
+  <div class="admin-wrap">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-logo">
+        <div class="sb-logo-name">INOVE</div>
+        <div class="sb-logo-sub">Painel Admin</div>
+      </div>
+      <nav class="sb-nav">
+        <div class="sb-section-label">Dashboard</div>
+        <button class="sb-link active" onclick="showPanel('dashboard')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Visão Geral
+        </button>
+
+        <div class="sb-section-label">Site</div>
+        <button class="sb-link" onclick="showPanel('geral')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Geral & Identidade
+        </button>
+        <button class="sb-link" onclick="showPanel('hero')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          Hero & Banner
+        </button>
+        <button class="sb-link" onclick="showPanel('seo')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          SEO
+        </button>
+        <button class="sb-link" onclick="showPanel('contato')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.2 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.5 6.5l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          Contato & Mapa
+        </button>
+        <button class="sb-link" onclick="showPanel('transparencia')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Transparência
+        </button>
+
+        <div class="sb-section-label">Conteúdo</div>
+        <button class="sb-link" onclick="showPanel('noticias')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9"/><path d="M18 14H10M15 18H10M20 8H10"/></svg>
+          Notícias
+        </button>
+        <button class="sb-link" onclick="showPanel('obras')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+          Obras / Projetos
+        </button>
+        <button class="sb-link" onclick="showPanel('galeria')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Galeria
+        </button>
+      </nav>
+      <div class="sb-footer">
+        <div class="sb-user" id="sb-user-email"></div>
+        <div class="sb-actions">
+          <a href="index.html" target="_blank" class="sb-btn sb-btn-site">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Ver Site
+          </a>
+          <button class="sb-btn sb-btn-logout" onclick="doLogout()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sair
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── MAIN ── -->
+    <main class="admin-main">
+      <div class="admin-topbar">
+        <div class="topbar-title" id="topbar-title">Visão Geral</div>
+        <div class="topbar-badge">INOVE Topografia</div>
+      </div>
+      <div class="admin-content">
+
+        <!-- ════════ DASHBOARD ════════ -->
+        <div class="adm-panel active" id="panel-dashboard">
+          <div class="panel-header">
+            <h2>Visão Geral</h2>
+            <p>Resumo do conteúdo publicado no site</p>
+          </div>
+          <div class="stats-row">
+            <div class="stat-card"><div class="stat-num" id="dash-noticias">—</div><div class="stat-lbl">Notícias</div></div>
+            <div class="stat-card"><div class="stat-num" id="dash-obras">—</div><div class="stat-lbl">Obras</div></div>
+            <div class="stat-card"><div class="stat-num" id="dash-galeria">—</div><div class="stat-lbl">Fotos</div></div>
+            <div class="stat-card"><div class="stat-num" id="dash-config">✓</div><div class="stat-lbl">Config</div></div>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              Acesso Rápido
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px">
+              <button class="btn btn-secondary" onclick="showPanel('geral')" style="justify-content:flex-start">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                Editar Identidade
+              </button>
+              <button class="btn btn-secondary" onclick="showPanel('noticias')" style="justify-content:flex-start">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2z"/></svg>
+                Nova Notícia
+              </button>
+              <button class="btn btn-secondary" onclick="showPanel('obras')" style="justify-content:flex-start">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg>
+                Nova Obra
+              </button>
+              <button class="btn btn-secondary" onclick="showPanel('galeria')" style="justify-content:flex-start">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Adicionar Foto
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════ GERAL ════════ -->
+        <div class="adm-panel" id="panel-geral">
+          <div class="panel-header">
+            <h2>Geral & Identidade</h2>
+            <p>Logo, textos principais e redes sociais</p>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Imagens
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Logo do Site</label>
+                <div class="upload-area" id="ua-logo">
+                  <div class="upload-icon"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                  <div class="upload-txt">Enviar Logo</div>
+                  <div class="upload-sub">PNG transparente recomendado</div>
+                  <input type="file" accept="image/*" onchange="handleUpload(this,'logoUrl','ua-logo','prev-logo','status-logo')">
+                  <img id="prev-logo" class="upload-preview">
+                  <div id="status-logo" class="upload-status"></div>
+                </div>
+              </div>
+              <div class="af">
+                <label>Favicon</label>
+                <div class="upload-area" id="ua-fav">
+                  <div class="upload-icon"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                  <div class="upload-txt">Enviar Favicon</div>
+                  <div class="upload-sub">ICO ou PNG 32×32</div>
+                  <input type="file" accept="image/*" onchange="handleUpload(this,'faviconUrl','ua-fav','prev-fav','status-fav')">
+                  <img id="prev-fav" class="upload-preview">
+                  <div id="status-fav" class="upload-status"></div>
+                </div>
+              </div>
+            </div>
+            <div class="af" style="margin-top:16px">
+              <label>Imagem da Seção "Sobre"</label>
+              <div class="upload-area" id="ua-about">
+                <div class="upload-icon"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <div class="upload-txt">Enviar Imagem Sobre</div>
+                <div class="upload-sub">Foto da equipe ou escritório</div>
+                <input type="file" accept="image/*" onchange="handleUpload(this,'aboutImgUrl','ua-about','prev-about','status-about')">
+                <img id="prev-about" class="upload-preview">
+                <div id="status-about" class="upload-status"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Textos
+            </div>
+            <div class="af">
+              <label>Nome do Site</label>
+              <input type="text" id="g-siteName" placeholder="INOVE Soluções em Topografia">
+            </div>
+            <div class="af">
+              <label>Título da Seção "Sobre"</label>
+              <input type="text" id="g-aboutTitle" placeholder="Quem somos">
+            </div>
+            <div class="af">
+              <label>Texto da Seção "Sobre"</label>
+              <textarea id="g-aboutText" rows="4" placeholder="Descrição da empresa..."></textarea>
+            </div>
+            <div class="af">
+              <label>Texto do Rodapé</label>
+              <input type="text" id="g-footerText" placeholder="© 2025 INOVE Topografia. Todos os direitos reservados.">
+            </div>
+            <div class="af">
+              <label>Link do Instagram</label>
+              <input type="url" id="g-instagramUrl" placeholder="https://instagram.com/...">
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+              <button class="btn btn-primary" onclick="saveGeral()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                Salvar Geral
+              </button>
+            </div>
+          </div>
+
+          <!-- Histórico de Imagens -->
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Histórico de Imagens
+            </div>
+            <p style="font-size:12px;color:rgba(255,255,255,.35);font-family:'Syne',sans-serif;margin-bottom:4px">Clique em uma imagem para copiá-la para um campo</p>
+            <div class="img-history-grid" id="img-history-grid"></div>
+            <div class="empty-state" id="img-history-empty" style="display:none">
+              <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Nenhuma imagem enviada ainda
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════ HERO ════════ -->
+        <div class="adm-panel" id="panel-hero">
+          <div class="panel-header">
+            <h2>Hero & Banner</h2>
+            <p>Imagens de fundo e textos do banner principal</p>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Imagens do Hero
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Slide 1 (Background)</label>
+                <div class="upload-area">
+                  <div class="upload-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                  <div class="upload-txt">Slide 1</div>
+                  <input type="file" accept="image/*" onchange="handleUpload(this,'heroSlide1','ua-hs1','prev-hs1','status-hs1')">
+                  <img id="prev-hs1" class="upload-preview">
+                  <div id="status-hs1" class="upload-status"></div>
+                </div>
+              </div>
+              <div class="af">
+                <label>Slide 2</label>
+                <div class="upload-area">
+                  <div class="upload-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                  <div class="upload-txt">Slide 2</div>
+                  <input type="file" accept="image/*" onchange="handleUpload(this,'heroSlide2','ua-hs2','prev-hs2','status-hs2')">
+                  <img id="prev-hs2" class="upload-preview">
+                  <div id="status-hs2" class="upload-status"></div>
+                </div>
+              </div>
+            </div>
+            <div class="af" style="margin-top:16px">
+              <label>Slide 3</label>
+              <div class="upload-area">
+                <div class="upload-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <div class="upload-txt">Slide 3</div>
+                <input type="file" accept="image/*" onchange="handleUpload(this,'heroSlide3','ua-hs3','prev-hs3','status-hs3')">
+                <img id="prev-hs3" class="upload-preview">
+                <div id="status-hs3" class="upload-status"></div>
+              </div>
+            </div>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Textos do Hero
+            </div>
+            <div class="af">
+              <label>Título (aceita HTML com &lt;em&gt;)</label>
+              <input type="text" id="h-heroTitle" placeholder="Precisão que <em>transforma</em>">
+              <div class="af-hint">Use &lt;em&gt; para destaque em azul</div>
+            </div>
+            <div class="af">
+              <label>Subtítulo</label>
+              <textarea id="h-heroSubtitle" rows="3" placeholder="Descubra..."></textarea>
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Texto do Botão CTA</label>
+                <input type="text" id="h-heroBtnText" placeholder="Solicitar Orçamento">
+              </div>
+              <div class="af">
+                <label>Link do Botão CTA</label>
+                <input type="text" id="h-heroBtnLink" placeholder="#contato">
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="saveHero()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Salvar Hero
+            </button>
+          </div>
+        </div>
+
+        <!-- ════════ SEO ════════ -->
+        <div class="adm-panel" id="panel-seo">
+          <div class="panel-header">
+            <h2>SEO</h2>
+            <p>Configurações de mecanismos de busca</p>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Meta Tags
+            </div>
+            <div class="af">
+              <label>Título da aba (title tag)</label>
+              <input type="text" id="s-siteName" placeholder="INOVE Soluções em Topografia | Precisão que transforma">
+              <div class="af-hint">Ideal: 50–60 caracteres</div>
+            </div>
+            <div class="af">
+              <label>Meta Description</label>
+              <textarea id="s-metaDesc" rows="3" placeholder="Empresa especializada em topografia..."></textarea>
+              <div class="af-hint">Ideal: 120–160 caracteres</div>
+            </div>
+            <div class="af">
+              <label>Palavras-chave (separadas por vírgula)</label>
+              <input type="text" id="s-metaKeywords" placeholder="topografia, GPS RTK, georreferenciamento, INCRA">
+            </div>
+            <button class="btn btn-primary" onclick="saveSEO()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Salvar SEO
+            </button>
+          </div>
+        </div>
+
+        <!-- ════════ CONTATO ════════ -->
+        <div class="adm-panel" id="panel-contato">
+          <div class="panel-header">
+            <h2>Contato & Mapa</h2>
+            <p>Informações de contato exibidas no site</p>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07"/></svg>
+              Dados de Contato
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Telefone / WhatsApp</label>
+                <input type="text" id="c-phone" placeholder="(61) 99999-9999">
+              </div>
+              <div class="af">
+                <label>E-mail</label>
+                <input type="email" id="c-email" placeholder="contato@inove.com.br">
+              </div>
+            </div>
+            <div class="af">
+              <label>Endereço</label>
+              <input type="text" id="c-address" placeholder="Rua Exemplo, 123 — Brasília, DF">
+            </div>
+            <div class="af">
+              <label>URL do Google Maps Embed (somente o src do iframe)</label>
+              <textarea id="c-mapUrl" rows="3" placeholder="https://www.google.com/maps/embed?pb=..."></textarea>
+              <div class="af-hint">No Google Maps: Compartilhar → Incorporar um mapa → copie apenas o valor do atributo src</div>
+            </div>
+            <button class="btn btn-primary" onclick="saveContato()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Salvar Contato
+            </button>
+          </div>
+        </div>
+
+        <!-- ════════ TRANSPARÊNCIA ════════ -->
+        <div class="adm-panel" id="panel-transparencia">
+          <div class="panel-header">
+            <h2>Transparência</h2>
+            <p>PDF de transparência exibido no site</p>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              PDF de Transparência
+            </div>
+            <div class="af">
+              <label>Enviar PDF</label>
+              <div class="upload-area">
+                <div class="upload-icon"><svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <div class="upload-txt">Enviar PDF</div>
+                <div class="upload-sub">Máx. 10 MB</div>
+                <input type="file" accept=".pdf,application/pdf" onchange="handlePDFUpload(this)">
+                <div id="status-pdf" class="upload-status"></div>
+              </div>
+            </div>
+            <div class="af">
+              <label>Ou cole o link direto do PDF</label>
+              <input type="url" id="t-pdfUrl" placeholder="https://...">
+            </div>
+            <button class="btn btn-primary" onclick="saveTransparencia()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Salvar PDF
+            </button>
+          </div>
+        </div>
+
+        <!-- ════════ NOTÍCIAS ════════ -->
+        <div class="adm-panel" id="panel-noticias">
+          <div class="panel-header">
+            <h2>Notícias</h2>
+            <p>Gerencie as notícias publicadas no site</p>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span id="news-form-title">Nova Notícia</span>
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Título</label>
+                <input type="text" id="n-title" placeholder="Título da notícia">
+              </div>
+              <div class="af">
+                <label>Categoria</label>
+                <input type="text" id="n-category" placeholder="Empresa, Projetos, Tecnologia...">
+              </div>
+            </div>
+            <div class="af">
+              <label>Resumo</label>
+              <textarea id="n-excerpt" rows="3" placeholder="Breve descrição da notícia..."></textarea>
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Data</label>
+                <input type="date" id="n-date">
+              </div>
+              <div class="af">
+                <label>Imagem (upload)</label>
+                <div class="upload-area" style="padding:14px">
+                  <input type="file" accept="image/*" onchange="handleUpload(this,'newsImgUrl','','prev-news-img','status-news-img')">
+                  <div class="upload-txt" style="font-size:10px">Clique para enviar imagem</div>
+                  <img id="prev-news-img" class="upload-preview">
+                  <div id="status-news-img" class="upload-status"></div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button class="btn btn-primary" id="news-save-btn" onclick="saveNoticia()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span id="news-save-label">Publicar Notícia</span>
+              </button>
+              <button class="btn btn-secondary" id="news-cancel-btn" onclick="cancelEditNoticia()" style="display:none">Cancelar Edição</button>
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              Notícias Publicadas
+            </div>
+            <table class="crud-table">
+              <thead><tr><th>Imagem</th><th>Título</th><th>Categoria</th><th>Data</th><th>Ações</th></tr></thead>
+              <tbody id="news-tbody">
+                <tr><td colspan="5"><div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2z"/></svg>Carregando...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ════════ OBRAS ════════ -->
+        <div class="adm-panel" id="panel-obras">
+          <div class="panel-header">
+            <h2>Obras / Projetos</h2>
+            <p>Gerencie o portfólio de obras e projetos</p>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span id="obra-form-title">Nova Obra / Projeto</span>
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Título do Projeto</label>
+                <input type="text" id="o-title" placeholder="Levantamento Ferrovia XYZ">
+              </div>
+              <div class="af">
+                <label>Categoria</label>
+                <input type="text" id="o-category" placeholder="Ferrovia, Civil, Mineração...">
+              </div>
+            </div>
+            <div class="af">
+              <label>Descrição</label>
+              <textarea id="o-desc" rows="3" placeholder="Descrição breve do projeto..."></textarea>
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Localização</label>
+                <input type="text" id="o-local" placeholder="Brasília, DF">
+              </div>
+              <div class="af">
+                <label>Ano</label>
+                <input type="text" id="o-year" placeholder="2024">
+              </div>
+            </div>
+            <div class="af">
+              <label>Imagem do Projeto</label>
+              <div class="upload-area" style="padding:14px">
+                <input type="file" accept="image/*" onchange="handleUpload(this,'obraImgUrl','','prev-obra-img','status-obra-img')">
+                <div class="upload-txt" style="font-size:10px">Clique para enviar imagem</div>
+                <img id="prev-obra-img" class="upload-preview">
+                <div id="status-obra-img" class="upload-status"></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <button class="btn btn-primary" id="obra-save-btn" onclick="saveObra()">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span id="obra-save-label">Publicar Obra</span>
+              </button>
+              <button class="btn btn-secondary" id="obra-cancel-btn" onclick="cancelEditObra()" style="display:none">Cancelar Edição</button>
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              Obras Publicadas
+            </div>
+            <table class="crud-table">
+              <thead><tr><th>Imagem</th><th>Título</th><th>Categoria</th><th>Local</th><th>Ações</th></tr></thead>
+              <tbody id="obras-tbody">
+                <tr><td colspan="5"><div class="empty-state">Carregando...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ════════ GALERIA ════════ -->
+        <div class="adm-panel" id="panel-galeria">
+          <div class="panel-header">
+            <h2>Galeria</h2>
+            <p>Gerencie as fotos da galeria do site</p>
+          </div>
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Adicionar Foto
+            </div>
+            <div class="af2">
+              <div class="af">
+                <label>Foto</label>
+                <div class="upload-area" style="padding:18px">
+                  <div class="upload-icon"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                  <div class="upload-txt">Enviar Foto</div>
+                  <input type="file" accept="image/*" onchange="handleUpload(this,'galImgUrl','','prev-gal','status-gal')">
+                  <img id="prev-gal" class="upload-preview">
+                  <div id="status-gal" class="upload-status"></div>
+                </div>
+              </div>
+              <div class="af">
+                <label>Legenda</label>
+                <input type="text" id="gal-title" placeholder="Descrição da foto...">
+                <div style="margin-top:12px">
+                  <button class="btn btn-primary" onclick="saveGaleria()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Adicionar Foto
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="adm-card">
+            <div class="adm-card-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Fotos Publicadas
+            </div>
+            <div class="gallery-admin-grid" id="gal-grid">
+              <div class="empty-state" style="grid-column:1/-1">Carregando...</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /admin-content -->
+    </main>
+  </div><!-- /admin-wrap -->
+</div><!-- /admin-screen -->
+
+<!-- ══════════════════════════════════════
+     FIREBASE + SCRIPTS
+══════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ── CONFIG ── */
+const firebaseConfig = {
+  apiKey: "AIzaSyDj5HVE0fPl7tbUnCGA8f4aZQC_kFcMfGI",
+  authDomain: "inove-topografia.firebaseapp.com",
+  projectId: "inove-topografia",
+  storageBucket: "inove-topografia.firebasestorage.app",
+  messagingSenderId: "367131547514",
+  appId: "1:367131547514:web:663aafc957dc2279aca8c3"
+};
+const CLOUD_NAME = "dgqxadsmt";
+const UPLOAD_PRESET = "inove-topografia";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* ── STATE ── */
+window._uploadedUrls = {};
+let editingNewsId = null;
+let editingObraId = null;
+
+/* ── AUTH STATE ── */
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById("login-screen").style.display = "none";
+    document.getElementById("admin-screen").style.display = "block";
+    document.getElementById("sb-user-email").textContent = user.email;
+    loadAllData();
+  } else {
+    document.getElementById("login-screen").style.display = "flex";
+    document.getElementById("admin-screen").style.display = "none";
+  }
+});
+
+/* ── LOGIN ── */
+window.doLogin = async function() {
+  const email = document.getElementById("login-email").value.trim();
+  const pass  = document.getElementById("login-pass").value;
+  const btn   = document.getElementById("login-btn");
+  const err   = document.getElementById("login-err");
+  err.textContent = "";
+  if(!email||!pass){err.textContent="Preencha e-mail e senha.";return;}
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Entrando...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    const msgs = {
+      "auth/invalid-credential":"E-mail ou senha incorretos.",
+      "auth/user-not-found":"Usuário não encontrado.",
+      "auth/wrong-password":"Senha incorreta.",
+      "auth/too-many-requests":"Muitas tentativas. Aguarde."
+    };
+    err.textContent = msgs[e.code] || "Erro ao entrar: "+e.message;
+    btn.disabled = false;
+    btn.textContent = "Entrar";
+  }
+};
+
+document.getElementById("login-pass").addEventListener("keydown", e => { if(e.key==="Enter") window.doLogin(); });
+
+/* ── LOGOUT ── */
+window.doLogout = async function() {
+  await signOut(auth);
+  showToast("Sessão encerrada","info");
+};
+
+/* ── SIDEBAR NAVIGATION ── */
+const panelTitles = {
+  dashboard:"Visão Geral", geral:"Geral & Identidade", hero:"Hero & Banner",
+  seo:"SEO", contato:"Contato & Mapa", transparencia:"Transparência",
+  noticias:"Notícias", obras:"Obras / Projetos", galeria:"Galeria"
+};
+window.showPanel = function(id) {
+  document.querySelectorAll(".adm-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".sb-link").forEach(l => l.classList.remove("active"));
+  document.getElementById("panel-"+id).classList.add("active");
+  document.querySelectorAll(".sb-link").forEach(l => { if(l.textContent.trim().toLowerCase().includes(panelTitles[id]?.split(" ")[0].toLowerCase())) l.classList.add("active"); });
+  document.getElementById("topbar-title").textContent = panelTitles[id] || id;
+  // close mobile sidebar
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sb-overlay").classList.remove("open");
+};
+
+window.toggleSidebar = function() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("sb-overlay").classList.toggle("open");
+};
+
+/* ── TOAST ── */
+window.showToast = function(msg, type="success") {
+  const icons = {
+    success:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+    error:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+    info:'<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+  };
+  const t = document.createElement("div");
+  t.className = `toast toast-${type}`;
+  t.innerHTML = icons[type]+msg;
+  document.getElementById("toast-container").appendChild(t);
+  setTimeout(()=>t.remove(), 3800);
+};
+
+/* ── CONFIRM MODAL ── */
+let confirmCallback = null;
+window.showConfirm = function(title, msg, cb) {
+  document.getElementById("confirm-title").textContent = title;
+  document.getElementById("confirm-msg").textContent = msg;
+  confirmCallback = cb;
+  document.getElementById("confirm-modal").classList.add("open");
+};
+window.closeConfirm = function() {
+  document.getElementById("confirm-modal").classList.remove("open");
+  confirmCallback = null;
+};
+document.getElementById("confirm-ok-btn").onclick = function() {
+  if(confirmCallback) confirmCallback();
+  closeConfirm();
+};
+
+/* ── CLOUDINARY UPLOAD ── */
+window.handleUpload = async function(input, urlKey, areaId, prevId, statusId) {
+  const file = input.files[0];
+  if(!file) return;
+  const prevEl = document.getElementById(prevId);
+  const statusEl = document.getElementById(statusId);
+  // preview local
+  if(prevEl) { prevEl.src = URL.createObjectURL(file); prevEl.style.display="block"; }
+  if(statusEl) { statusEl.textContent = "Enviando..."; statusEl.style.color = "rgba(255,255,255,.5)"; }
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", UPLOAD_PRESET);
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`, {method:"POST",body:fd});
+    const data = await res.json();
+    if(data.secure_url) {
+      window._uploadedUrls[urlKey] = data.secure_url;
+      if(statusEl) { statusEl.textContent = "✓ Upload concluído — clique em Salvar"; statusEl.style.color = "#22c55e"; }
+      addToImgHistory(data.secure_url);
+      renderImgHistory();
+    } else {
+      if(statusEl) { statusEl.textContent = "Erro no upload"; statusEl.style.color = "#ef4444"; }
+    }
+  } catch(e) {
+    if(statusEl) { statusEl.textContent = "Erro: "+e.message; statusEl.style.color = "#ef4444"; }
+  }
+};
+
+window.handlePDFUpload = async function(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById("status-pdf");
+  statusEl.textContent = "Enviando PDF..."; statusEl.style.color = "rgba(255,255,255,.5)";
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("upload_preset", UPLOAD_PRESET);
+  fd.append("resource_type","raw");
+  try {
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`, {method:"POST",body:fd});
+    const data = await res.json();
+    if(data.secure_url) {
+      window._uploadedUrls["transparencyPdfUrl"] = data.secure_url;
+      document.getElementById("t-pdfUrl").value = data.secure_url;
+      statusEl.textContent = "✓ PDF enviado — clique em Salvar"; statusEl.style.color = "#22c55e";
+    } else {
+      statusEl.textContent = "Erro no upload"; statusEl.style.color = "#ef4444";
+    }
+  } catch(e) {
+    statusEl.textContent = "Erro: "+e.message; statusEl.style.color = "#ef4444";
+  }
+};
+
+/* ── IMG HISTORY ── */
+function addToImgHistory(url) {
+  let h = JSON.parse(localStorage.getItem("img_history")||"[]");
+  h = h.filter(u => u !== url);
+  h.unshift(url);
+  if(h.length > 40) h = h.slice(0,40);
+  localStorage.setItem("img_history", JSON.stringify(h));
+}
+function renderImgHistory() {
+  const h = JSON.parse(localStorage.getItem("img_history")||"[]");
+  const grid = document.getElementById("img-history-grid");
+  const empty = document.getElementById("img-history-empty");
+  if(!grid) return;
+  if(h.length === 0) { grid.innerHTML=""; if(empty) empty.style.display="block"; return; }
+  if(empty) empty.style.display="none";
+  grid.innerHTML = h.map(url =>
+    `<div class="ih-item" onclick="useImgHistory('${url}')"><img src="${url}" alt=""></div>`
+  ).join("");
+}
+window.useImgHistory = function(url) {
+  const fields = ["logoUrl","faviconUrl","aboutImgUrl","heroSlide1","heroSlide2","heroSlide3","newsImgUrl","obraImgUrl","galImgUrl"];
+  const labels = ["Logo","Favicon","Imagem Sobre","Hero Slide 1","Hero Slide 2","Hero Slide 3","Imagem Notícia","Imagem Obra","Foto Galeria"];
+  const choice = prompt("Aplicar imagem para qual campo?\n"+fields.map((f,i)=>(i+1)+". "+labels[i]).join("\n")+"\n\nDigite o número:");
+  const idx = parseInt(choice)-1;
+  if(idx>=0 && idx<fields.length) {
+    window._uploadedUrls[fields[idx]] = url;
+    showToast("Imagem selecionada para: "+labels[idx],"info");
+  }
+};
+
+/* ── LOAD ALL DATA ── */
+async function loadAllData() {
+  const cache = localStorage.getItem("site_cache_v1");
+  if(cache) applyConfig(JSON.parse(cache));
+  try {
+    const [configSnap, newsSnap, obrasSnap, galSnap] = await Promise.all([
+      getDoc(doc(db,"config","site")),
+      getDocs(query(collection(db,"news"),orderBy("createdAt","desc"))),
+      getDocs(query(collection(db,"obras"),orderBy("createdAt","desc"))),
+      getDocs(query(collection(db,"gallery"),orderBy("createdAt","desc")))
+    ]);
+    const cfg = configSnap.exists() ? configSnap.data() : {};
+    localStorage.setItem("site_cache_v1", JSON.stringify(cfg));
+    applyConfig(cfg);
+    renderNews(newsSnap.docs);
+    renderObras(obrasSnap.docs);
+    renderGallery(galSnap.docs);
+    document.getElementById("dash-noticias").textContent = newsSnap.size;
+    document.getElementById("dash-obras").textContent = obrasSnap.size;
+    document.getElementById("dash-galeria").textContent = galSnap.size;
+  } catch(e) { showToast("Erro ao carregar dados: "+e.message,"error"); }
+  renderImgHistory();
+}
+
+function applyConfig(cfg) {
+  const set = (id, val) => { const el=document.getElementById(id); if(el&&val!==undefined) el.value=val; };
+  set("g-siteName", cfg.siteName);
+  set("g-aboutTitle", cfg.aboutTitle);
+  set("g-aboutText", cfg.aboutText);
+  set("g-footerText", cfg.footerText);
+  set("g-instagramUrl", cfg.instagramUrl);
+  set("h-heroTitle", cfg.heroTitle);
+  set("h-heroSubtitle", cfg.heroSubtitle);
+  set("h-heroBtnText", cfg.heroBtnText);
+  set("h-heroBtnLink", cfg.heroBtnLink);
+  set("s-siteName", cfg.siteName);
+  set("s-metaDesc", cfg.metaDesc);
+  set("s-metaKeywords", cfg.metaKeywords);
+  set("c-phone", cfg.contactPhone);
+  set("c-email", cfg.contactEmail);
+  set("c-address", cfg.contactAddress);
+  set("c-mapUrl", cfg.mapUrl);
+  set("t-pdfUrl", cfg.transparencyPdfUrl);
+  // previews
+  if(cfg.logoUrl) showImgPreview("prev-logo", cfg.logoUrl);
+  if(cfg.faviconUrl) showImgPreview("prev-fav", cfg.faviconUrl);
+  if(cfg.aboutImgUrl) showImgPreview("prev-about", cfg.aboutImgUrl);
+}
+function showImgPreview(id, src) {
+  const el = document.getElementById(id);
+  if(el) { el.src=src; el.style.display="block"; }
+}
+
+/* ── SAVE GERAL ── */
+window.saveGeral = async function() {
+  const data = {
+    siteName: document.getElementById("g-siteName").value,
+    aboutTitle: document.getElementById("g-aboutTitle").value,
+    aboutText: document.getElementById("g-aboutText").value,
+    footerText: document.getElementById("g-footerText").value,
+    instagramUrl: document.getElementById("g-instagramUrl").value,
+    ...pickUploads(["logoUrl","faviconUrl","aboutImgUrl"])
+  };
+  await saveConfig(data);
+};
+
+/* ── SAVE HERO ── */
+window.saveHero = async function() {
+  const data = {
+    heroTitle: document.getElementById("h-heroTitle").value,
+    heroSubtitle: document.getElementById("h-heroSubtitle").value,
+    heroBtnText: document.getElementById("h-heroBtnText").value,
+    heroBtnLink: document.getElementById("h-heroBtnLink").value,
+    ...pickUploads(["heroSlide1","heroSlide2","heroSlide3"])
+  };
+  await saveConfig(data);
+};
+
+/* ── SAVE SEO ── */
+window.saveSEO = async function() {
+  const data = {
+    siteName: document.getElementById("s-siteName").value,
+    metaDesc: document.getElementById("s-metaDesc").value,
+    metaKeywords: document.getElementById("s-metaKeywords").value
+  };
+  await saveConfig(data);
+};
+
+/* ── SAVE CONTATO ── */
+window.saveContato = async function() {
+  const data = {
+    contactPhone: document.getElementById("c-phone").value,
+    contactEmail: document.getElementById("c-email").value,
+    contactAddress: document.getElementById("c-address").value,
+    mapUrl: document.getElementById("c-mapUrl").value
+  };
+  await saveConfig(data);
+};
+
+/* ── SAVE TRANSPARENCIA ── */
+window.saveTransparencia = async function() {
+  const url = window._uploadedUrls["transparencyPdfUrl"] || document.getElementById("t-pdfUrl").value;
+  await saveConfig({ transparencyPdfUrl: url });
+};
+
+/* ── HELPER: saveConfig ── */
+async function saveConfig(data) {
+  try {
+    await setDoc(doc(db,"config","site"), data, {merge:true});
+    localStorage.removeItem("site_cache_v1");
+    showToast("Salvo com sucesso!","success");
+  } catch(e) { showToast("Erro ao salvar: "+e.message,"error"); }
+}
+function pickUploads(keys) {
+  const out = {};
+  keys.forEach(k => { if(window._uploadedUrls[k]) out[k] = window._uploadedUrls[k]; });
+  return out;
+}
+
+/* ════════════════════════════
+   NOTÍCIAS CRUD
+════════════════════════════ */
+window.saveNoticia = async function() {
+  const title    = document.getElementById("n-title").value.trim();
+  const excerpt  = document.getElementById("n-excerpt").value.trim();
+  const date     = document.getElementById("n-date").value;
+  const category = document.getElementById("n-category").value.trim();
+  const imageUrl = window._uploadedUrls["newsImgUrl"] || "";
+  if(!title){ showToast("Preencha o título","error"); return; }
+  const data = {title, excerpt, date, category, imageUrl, createdAt: serverTimestamp()};
+  try {
+    if(editingNewsId) {
+      await updateDoc(doc(db,"news",editingNewsId), data);
+      showToast("Notícia atualizada!","success");
+    } else {
+      await addDoc(collection(db,"news"), data);
+      showToast("Notícia publicada!","success");
+    }
+    cancelEditNoticia();
+    reloadNews();
+  } catch(e) { showToast("Erro: "+e.message,"error"); }
+};
+
+window.cancelEditNoticia = function() {
+  editingNewsId = null;
+  document.getElementById("n-title").value="";
+  document.getElementById("n-excerpt").value="";
+  document.getElementById("n-date").value="";
+  document.getElementById("n-category").value="";
+  document.getElementById("prev-news-img").style.display="none";
+  document.getElementById("status-news-img").textContent="";
+  document.getElementById("news-form-title").textContent="Nova Notícia";
+  document.getElementById("news-save-label").textContent="Publicar Notícia";
+  document.getElementById("news-cancel-btn").style.display="none";
+  delete window._uploadedUrls["newsImgUrl"];
+};
+
+window.editNoticia = function(id, d) {
+  editingNewsId = id;
+  document.getElementById("n-title").value = d.title||"";
+  document.getElementById("n-excerpt").value = d.excerpt||"";
+  document.getElementById("n-date").value = d.date||"";
+  document.getElementById("n-category").value = d.category||"";
+  if(d.imageUrl) { window._uploadedUrls["newsImgUrl"]=d.imageUrl; showImgPreview("prev-news-img",d.imageUrl); }
+  document.getElementById("news-form-title").textContent="Editando Notícia";
+  document.getElementById("news-save-label").textContent="Salvar Alterações";
+  document.getElementById("news-cancel-btn").style.display="inline-flex";
+  document.getElementById("panel-noticias").querySelector(".adm-card").scrollIntoView({behavior:"smooth"});
+};
+
+window.deleteNoticia = function(id) {
+  showConfirm("Excluir Notícia","Esta ação não pode ser desfeita. Confirma?", async ()=>{
+    await deleteDoc(doc(db,"news",id));
+    showToast("Notícia excluída","success");
+    reloadNews();
+  });
+};
+
+async function reloadNews() {
+  const snap = await getDocs(query(collection(db,"news"),orderBy("createdAt","desc")));
+  renderNews(snap.docs);
+  document.getElementById("dash-noticias").textContent = snap.size;
+}
+
+function renderNews(docs) {
+  const tbody = document.getElementById("news-tbody");
+  if(docs.length===0){ tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2z"/></svg>Nenhuma notícia publicada</div></td></tr>`; return; }
+  tbody.innerHTML = docs.map(d => {
+    const data = d.data();
+    const img = data.imageUrl ? `<img src="${data.imageUrl}" class="thumb" alt="">` : `<div style="width:52px;height:40px;background:rgba(59,130,246,.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.3);">—</div>`;
+    const safeD = JSON.stringify(data).replace(/'/g,"\\'");
+    return `<tr>
+      <td>${img}</td>
+      <td style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;max-width:220px">${data.title||"—"}</td>
+      <td><span class="tag-badge" style="background:rgba(29,78,216,.15);color:var(--bb);border:1px solid rgba(59,130,246,.3)">${data.category||"—"}</span></td>
+      <td style="font-size:12px;color:rgba(255,255,255,.45)">${data.date||"—"}</td>
+      <td><div class="actions">
+        <button class="btn btn-secondary btn-sm" onclick='editNoticia("${d.id}", ${JSON.stringify(data)})'>Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteNoticia('${d.id}')">Excluir</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+}
+
+/* ════════════════════════════
+   OBRAS CRUD
+════════════════════════════ */
+window.saveObra = async function() {
+  const title    = document.getElementById("o-title").value.trim();
+  const desc     = document.getElementById("o-desc").value.trim();
+  const category = document.getElementById("o-category").value.trim();
+  const local    = document.getElementById("o-local").value.trim();
+  const year     = document.getElementById("o-year").value.trim();
+  const imageUrl = window._uploadedUrls["obraImgUrl"] || "";
+  if(!title){ showToast("Preencha o título","error"); return; }
+  const data = {title, desc, category, local, year, imageUrl, createdAt: serverTimestamp()};
+  try {
+    if(editingObraId) {
+      await updateDoc(doc(db,"obras",editingObraId), data);
+      showToast("Obra atualizada!","success");
+    } else {
+      await addDoc(collection(db,"obras"), data);
+      showToast("Obra publicada!","success");
+    }
+    cancelEditObra();
+    reloadObras();
+  } catch(e) { showToast("Erro: "+e.message,"error"); }
+};
+
+window.cancelEditObra = function() {
+  editingObraId = null;
+  document.getElementById("o-title").value="";
+  document.getElementById("o-desc").value="";
+  document.getElementById("o-category").value="";
+  document.getElementById("o-local").value="";
+  document.getElementById("o-year").value="";
+  document.getElementById("prev-obra-img").style.display="none";
+  document.getElementById("status-obra-img").textContent="";
+  document.getElementById("obra-form-title").textContent="Nova Obra / Projeto";
+  document.getElementById("obra-save-label").textContent="Publicar Obra";
+  document.getElementById("obra-cancel-btn").style.display="none";
+  delete window._uploadedUrls["obraImgUrl"];
+};
+
+window.editObra = function(id, data) {
+  editingObraId = id;
+  document.getElementById("o-title").value = data.title||"";
+  document.getElementById("o-desc").value = data.desc||"";
+  document.getElementById("o-category").value = data.category||"";
+  document.getElementById("o-local").value = data.local||"";
+  document.getElementById("o-year").value = data.year||"";
+  if(data.imageUrl) { window._uploadedUrls["obraImgUrl"]=data.imageUrl; showImgPreview("prev-obra-img",data.imageUrl); }
+  document.getElementById("obra-form-title").textContent="Editando Obra";
+  document.getElementById("obra-save-label").textContent="Salvar Alterações";
+  document.getElementById("obra-cancel-btn").style.display="inline-flex";
+  document.getElementById("panel-obras").querySelector(".adm-card").scrollIntoView({behavior:"smooth"});
+};
+
+window.deleteObra = function(id) {
+  showConfirm("Excluir Obra","Esta ação não pode ser desfeita. Confirma?", async ()=>{
+    await deleteDoc(doc(db,"obras",id));
+    showToast("Obra excluída","success");
+    reloadObras();
+  });
+};
+
+async function reloadObras() {
+  const snap = await getDocs(query(collection(db,"obras"),orderBy("createdAt","desc")));
+  renderObras(snap.docs);
+  document.getElementById("dash-obras").textContent = snap.size;
+}
+
+function renderObras(docs) {
+  const tbody = document.getElementById("obras-tbody");
+  if(docs.length===0){ tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state">Nenhuma obra publicada</div></td></tr>`; return; }
+  tbody.innerHTML = docs.map(d => {
+    const data = d.data();
+    const img = data.imageUrl ? `<img src="${data.imageUrl}" class="thumb" alt="">` : `<div style="width:52px;height:40px;background:rgba(59,130,246,.1);border-radius:6px"></div>`;
+    return `<tr>
+      <td>${img}</td>
+      <td style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;max-width:200px">${data.title||"—"}</td>
+      <td><span class="tag-badge" style="background:rgba(29,78,216,.15);color:var(--bb);border:1px solid rgba(59,130,246,.3)">${data.category||"—"}</span></td>
+      <td style="font-size:12px;color:rgba(255,255,255,.45)">${data.local||"—"}</td>
+      <td><div class="actions">
+        <button class="btn btn-secondary btn-sm" onclick='editObra("${d.id}", ${JSON.stringify(data)})'>Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteObra('${d.id}')">Excluir</button>
+      </div></td>
+    </tr>`;
+  }).join("");
+}
+
+/* ════════════════════════════
+   GALERIA CRUD
+════════════════════════════ */
+window.saveGaleria = async function() {
+  const url   = window._uploadedUrls["galImgUrl"];
+  const title = document.getElementById("gal-title").value.trim();
+  if(!url){ showToast("Envie uma foto primeiro","error"); return; }
+  try {
+    await addDoc(collection(db,"gallery"), {url, title, createdAt: serverTimestamp()});
+    showToast("Foto adicionada!","success");
+    document.getElementById("gal-title").value="";
+    document.getElementById("prev-gal").style.display="none";
+    document.getElementById("status-gal").textContent="";
+    delete window._uploadedUrls["galImgUrl"];
+    reloadGallery();
+  } catch(e) { showToast("Erro: "+e.message,"error"); }
+};
+
+window.deleteGaleria = function(id) {
+  showConfirm("Excluir Foto","Esta ação não pode ser desfeita. Confirma?", async ()=>{
+    await deleteDoc(doc(db,"gallery",id));
+    showToast("Foto excluída","success");
+    reloadGallery();
+  });
+};
+
+async function reloadGallery() {
+  const snap = await getDocs(query(collection(db,"gallery"),orderBy("createdAt","desc")));
+  renderGallery(snap.docs);
+  document.getElementById("dash-galeria").textContent = snap.size;
+}
+
+function renderGallery(docs) {
+  const grid = document.getElementById("gal-grid");
+  if(docs.length===0){ grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Nenhuma foto publicada</div>`; return; }
+  grid.innerHTML = docs.map(d => {
+    const data = d.data();
+    return `<div class="ga-item">
+      <img src="${data.url}" alt="${data.title||''}">
+      <div class="ga-item-overlay">
+        <div class="ga-item-title">${data.title||"Sem legenda"}</div>
+        <button class="btn btn-danger btn-sm" onclick="deleteGaleria('${d.id}')">Excluir</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+</script>
+</body>
+</html>
